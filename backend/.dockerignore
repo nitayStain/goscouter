@@ -1,0 +1,11 @@
+bin
+obj
+vendor
+*.log
+.git
+tmp
+*.tmp
+node_modules
+*.env
+*.local
+
