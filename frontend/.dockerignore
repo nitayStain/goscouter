@@ -1,9 +1,0 @@
-.next
-node_modules
-npm-debug.log
-.npmrc
-.git
-.env
-.local
-*.log
-
