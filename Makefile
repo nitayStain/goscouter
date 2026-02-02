@@ -32,7 +32,7 @@ backend:
 
 # Install system-wide
 install:
-	@./install.sh
+	@./scripts/install.sh
 
 # Uninstall
 uninstall:

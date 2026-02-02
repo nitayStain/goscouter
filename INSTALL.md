@@ -17,7 +17,27 @@ npm --version
 
 ## Installation Methods
 
-### Method 1: Quick Install (Recommended)
+### Method 1: One-Line Remote Install ⚡ (Easiest)
+
+Install GoScouter with a single command:
+
+```bash
+curl -sSf https://raw.githubusercontent.com/nitayStain/goscouter/main/scripts/remote-install.sh | sh
+```
+
+This will:
+- Check for prerequisites (Go, Node.js, npm, git)
+- Download the latest version from GitHub
+- Build frontend and backend
+- Install to `/usr/local/bin/goscouter`
+- Set up frontend assets in `~/.goscouter`
+
+After installation:
+```bash
+goscouter run
+```
+
+### Method 2: Quick Install (Local)
 
 The easiest way to install GoScouter system-wide:
 
@@ -27,7 +47,7 @@ git clone https://github.com/nitayStain/goscouter.git
 cd goscouter
 
 # Run the installer
-./install.sh
+./scripts/install.sh
 ```
 
 This will:
@@ -42,7 +62,7 @@ After installation, you can run from anywhere:
 goscouter run
 ```
 
-### Method 2: Using Makefile
+### Method 3: Using Makefile
 
 For developers who want more control:
 
@@ -67,7 +87,7 @@ make dev        # Run frontend in dev mode
 make test       # Run tests
 ```
 
-### Method 3: Manual Installation
+### Method 4: Manual Installation
 
 For advanced users or custom setups:
 
@@ -96,7 +116,7 @@ For advanced users or custom setups:
    goscouter run
    ```
 
-### Method 4: Using Docker
+### Method 5: Using Docker
 
 No local installation required:
 
@@ -115,7 +135,7 @@ docker compose down
 
 ### Using the uninstall script:
 ```bash
-./uninstall.sh
+./scripts/uninstall.sh
 ```
 
 ### Using Make:
