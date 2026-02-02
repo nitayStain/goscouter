@@ -78,7 +78,7 @@ cd ..
 
 # Build backend
 printf "${YELLOW}→${NC} Building backend...\n"
-go build -o goscouter . >/dev/null 2>&1
+go build -o goscouter ./cmd/goscouter >/dev/null 2>&1
 
 # Install binary
 printf "${YELLOW}→${NC} Installing goscouter to /usr/local/bin...\n"
