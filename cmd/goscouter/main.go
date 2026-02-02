@@ -13,6 +13,7 @@ import (
 )
 
 var debugMode bool
+var daemonMode bool
 
 func main() {
 	if len(os.Args) < 2 {
@@ -30,11 +31,26 @@ func main() {
 			debugMode = true
 			server.DebugMode = true
 		}
+		if flag == "-d" || flag == "--daemon" {
+			daemonMode = true
+		}
 	}
 
 	switch command {
 	case "run":
-		runCommand()
+		if daemonMode {
+			if err := startDaemon(); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				os.Exit(1)
+			}
+		} else {
+			runCommand()
+		}
+	case "stop":
+		if err := stopDaemon(); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
 	case "build":
 		buildCommand()
 	case "version", "-v", "--version":
@@ -49,15 +65,20 @@ func main() {
 }
 
 func runCommand() {
-	fmt.Println("🚀 Starting GoScouter...")
-	if debugMode {
-		fmt.Println("🔍 Debug mode enabled")
+	// Skip startup messages if running as daemon
+	if !daemonMode {
+		fmt.Println("🚀 Starting GoScouter...")
+		if debugMode {
+			fmt.Println("🔍 Debug mode enabled")
+		}
+
+		// Check for updates in background (not for daemon)
+		checkForUpdates()
 	}
 
-	// Check for updates in background
-	checkForUpdates()
-
-	fmt.Println("📦 Checking frontend build...")
+	if !daemonMode {
+		fmt.Println("📦 Checking frontend build...")
+	}
 
 	// Find frontend directory (local or installed)
 	frontendPath := getFrontendPath()
@@ -65,14 +86,15 @@ func runCommand() {
 		log.Fatalf("Frontend not found. Please run 'goscouter build' first or install using 'make install'")
 	}
 
-	fmt.Printf("✅ Frontend found at: %s\n", frontendPath)
+	if !daemonMode {
+		fmt.Printf("✅ Frontend found at: %s\n", frontendPath)
+		fmt.Println("🌐 Starting server on http://localhost:8080")
+		fmt.Println("Press Ctrl+C to stop")
+		fmt.Println()
+	}
 
 	// Set environment variable for server to find frontend
 	os.Setenv("GOSCOUTER_FRONTEND_PATH", frontendPath)
-
-	fmt.Println("🌐 Starting server on http://localhost:8080")
-	fmt.Println("Press Ctrl+C to stop")
-	fmt.Println()
 
 	srv := server.New()
 	if err := srv.Run(); err != nil {
@@ -202,22 +224,25 @@ Usage:
   goscouter <command> [flags]
 
 Commands:
-  run       Build (if needed) and start the GoScouter web service
+  run       Start the GoScouter web service
+  stop      Stop the running daemon
   build     Build the frontend and prepare for production
   version   Show version information and check for updates
   help      Show this help message
 
 Flags:
-  --debug, --verbose    Enable debug mode (shows DNS lookup logs)
+  -d, --daemon              Run as background daemon
+  --debug, --verbose        Enable debug mode (shows DNS lookup logs)
 
 Environment Variables:
   GOSCOUTER_SKIP_VERSION_CHECK=1    Disable automatic update checks
 
 Examples:
-  goscouter run              # Start the web service on http://localhost:8080
+  goscouter run              # Start in foreground on http://localhost:8080
+  goscouter run -d           # Start as daemon (background)
   goscouter run --debug      # Start with debug logging
+  goscouter stop             # Stop the daemon
   goscouter build            # Build the frontend (quiet mode)
-  goscouter build --verbose  # Build with full npm output
   goscouter version          # Show version and check for updates
 
 For more information, visit: https://github.com/nitayStain/goscouter`)
