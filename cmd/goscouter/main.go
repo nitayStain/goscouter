@@ -14,6 +14,7 @@ import (
 
 var debugMode bool
 var daemonMode bool
+var isDaemonChild bool
 
 func main() {
 	if len(os.Args) < 2 {
@@ -31,23 +32,37 @@ func main() {
 			debugMode = true
 			server.DebugMode = true
 		}
-		if flag == "-d" || flag == "--daemon" {
+		if flag == "-d" {
 			daemonMode = true
+		}
+		if flag == "--daemon" {
+			isDaemonChild = true
 		}
 	}
 
 	switch command {
 	case "run":
-		if daemonMode {
+		if isDaemonChild {
+			// We are the daemon child process, just run normally
+			daemonMode = true // Set this so we don't print startup messages
+			runCommand()
+		} else if daemonMode {
+			// User wants to daemonize, so fork
 			if err := startDaemon(); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				os.Exit(1)
 			}
 		} else {
+			// Normal foreground run
 			runCommand()
 		}
 	case "stop":
 		if err := stopDaemon(); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+	case "status":
+		if err := statusDaemon(); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
@@ -226,6 +241,7 @@ Usage:
 Commands:
   run       Start the GoScouter web service
   stop      Stop the running daemon
+  status    Check if daemon is running
   build     Build the frontend and prepare for production
   version   Show version information and check for updates
   help      Show this help message
@@ -242,6 +258,7 @@ Examples:
   goscouter run -d           # Start as daemon (background)
   goscouter run --debug      # Start with debug logging
   goscouter stop             # Stop the daemon
+  goscouter status           # Check daemon status
   goscouter build            # Build the frontend (quiet mode)
   goscouter version          # Show version and check for updates
 
