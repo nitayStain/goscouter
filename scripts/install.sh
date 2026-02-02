@@ -1,6 +1,6 @@
 #!/bin/bash
 # GoScouter Installer
-# Usage: curl -sSf https://raw.githubusercontent.com/nitayStain/goscouter/main/scripts/install.sh | sh
+# Usage: curl -sSf https://raw.githubusercontent.com/nitayStain/goscouter/main/scripts/install.sh | bash
 
 set -e
 
