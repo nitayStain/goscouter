@@ -32,6 +32,20 @@ command -v npm >/dev/null 2>&1 || { echo -e "${RED}✗ npm is required but not i
 echo -e "${GREEN}✓${NC} All prerequisites found"
 echo ""
 
+# Check if goscouter is already installed
+if command -v goscouter >/dev/null 2>&1; then
+    CURRENT_VERSION=$(goscouter version 2>&1 | head -1 | grep -o 'v[0-9.]*' || echo "unknown")
+    echo -e "${YELLOW}⚠${NC}  GoScouter is already installed (${CURRENT_VERSION})"
+    echo ""
+    read -p "Do you want to reinstall? [y/N]: " -n 1 -r
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Installation cancelled."
+        exit 0
+    fi
+    echo ""
+fi
+
 # Set install directory
 INSTALL_DIR="${HOME}/.goscouter-build"
 BRANCH="${GOSCOUTER_BRANCH:-main}"

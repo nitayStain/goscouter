@@ -12,8 +12,18 @@ echo "🗑️  GoScouter Uninstaller"
 echo "======================="
 echo
 
-# Remove binary
+# Check if goscouter is installed
 INSTALL_DIR="/usr/local/bin"
+DATA_DIR="$HOME/.goscouter"
+
+if [ ! -f "$INSTALL_DIR/goscouter" ] && [ ! -d "$DATA_DIR" ]; then
+    echo -e "${YELLOW}⚠ GoScouter is not installed${NC}"
+    echo ""
+    echo "Nothing to uninstall."
+    exit 0
+fi
+
+# Remove binary
 if [ -f "$INSTALL_DIR/goscouter" ]; then
     if [ ! -w "$INSTALL_DIR" ]; then
         echo -e "${YELLOW}⚠ Need sudo access to remove from $INSTALL_DIR${NC}"
@@ -30,7 +40,6 @@ else
 fi
 
 # Remove data directory
-DATA_DIR="$HOME/.goscouter"
 if [ -d "$DATA_DIR" ]; then
     echo "Removing data directory..."
     rm -rf "$DATA_DIR"
