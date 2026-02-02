@@ -1,6 +1,6 @@
 #!/bin/bash
 # GoScouter Remote Installer
-# Usage: curl -sSf https://raw.githubusercontent.com/nitayStain/goscouter/remote-installer/remote-install.sh | sh
+# Usage: curl -sSf https://raw.githubusercontent.com/nitayStain/goscouter/main/remote-install.sh | sh
 
 set -e
 
@@ -34,7 +34,7 @@ echo ""
 
 # Set install directory
 INSTALL_DIR="${HOME}/.goscouter-build"
-BRANCH="${GOSCOUTER_BRANCH:-remote-installer}"
+BRANCH="${GOSCOUTER_BRANCH:-main}"
 
 # Clean up old installation if exists
 if [ -d "$INSTALL_DIR" ]; then
