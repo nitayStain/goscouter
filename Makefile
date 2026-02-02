@@ -27,7 +27,7 @@ frontend:
 # Build backend
 backend:
 	@echo "🔨 Building backend..."
-	@go build -o goscouter .
+	@go build -o goscouter ./cmd/goscouter
 	@echo "✓ Backend built"
 
 # Install system-wide
