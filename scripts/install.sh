@@ -1,92 +1,107 @@
 #!/bin/bash
+# GoScouter Installer
+# Usage: curl -sSf https://raw.githubusercontent.com/nitayStain/goscouter/main/scripts/install.sh | sh
 
 set -e
 
-# Colors for output
+# Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo "🚀 GoScouter Installer"
-echo "====================="
-echo
+# Detect OS and Architecture
+OS="$(uname -s)"
+ARCH="$(uname -m)"
 
-# Check if Go is installed
-if ! command -v go &> /dev/null; then
-    echo -e "${RED}Error: Go is not installed${NC}"
-    echo "Please install Go from https://golang.org/dl/"
-    exit 1
+echo -e "${BLUE}╔═══════════════════════════════════════════════════════════╗${NC}"
+echo -e "${BLUE}║                   GoScouter Installer                     ║${NC}"
+echo -e "${BLUE}║          Subdomain Discovery Tool Installation            ║${NC}"
+echo -e "${BLUE}╚═══════════════════════════════════════════════════════════╝${NC}"
+echo ""
+
+# Check prerequisites
+echo -e "${YELLOW}→${NC} Checking prerequisites..."
+
+command -v git >/dev/null 2>&1 || { echo -e "${RED}✗ git is required but not installed.${NC}" >&2; exit 1; }
+command -v go >/dev/null 2>&1 || { echo -e "${RED}✗ Go 1.23+ is required but not installed. Get it at https://golang.org/dl/${NC}" >&2; exit 1; }
+command -v node >/dev/null 2>&1 || { echo -e "${RED}✗ Node.js 18+ is required but not installed. Get it at https://nodejs.org${NC}" >&2; exit 1; }
+command -v npm >/dev/null 2>&1 || { echo -e "${RED}✗ npm is required but not installed.${NC}" >&2; exit 1; }
+
+echo -e "${GREEN}✓${NC} All prerequisites found"
+echo ""
+
+# Set install directory
+INSTALL_DIR="${HOME}/.goscouter-build"
+BRANCH="${GOSCOUTER_BRANCH:-main}"
+
+# Clean up old installation if exists
+if [ -d "$INSTALL_DIR" ]; then
+    echo -e "${YELLOW}→${NC} Removing old build directory..."
+    rm -rf "$INSTALL_DIR"
 fi
 
-# Check if Node.js is installed
-if ! command -v node &> /dev/null; then
-    echo -e "${RED}Error: Node.js is not installed${NC}"
-    echo "Please install Node.js from https://nodejs.org/"
-    exit 1
-fi
+# Clone repository
+echo -e "${YELLOW}→${NC} Downloading GoScouter from GitHub..."
+git clone --depth 1 --branch "$BRANCH" https://github.com/nitayStain/goscouter.git "$INSTALL_DIR" >/dev/null 2>&1
 
-# Check if npm is installed
-if ! command -v npm &> /dev/null; then
-    echo -e "${RED}Error: npm is not installed${NC}"
-    echo "Please install npm (comes with Node.js)"
-    exit 1
-fi
-
-echo "✓ Go version: $(go version | awk '{print $3}')"
-echo "✓ Node.js version: $(node --version)"
-echo "✓ npm version: $(npm --version)"
-echo
+cd "$INSTALL_DIR"
 
 # Build frontend
-echo "📦 Building frontend..."
+echo -e "${YELLOW}→${NC} Building frontend (this may take a minute)..."
 cd frontend
-npm install
-npm run build
+npm install --silent >/dev/null 2>&1
+npm run build >/dev/null 2>&1
 cd ..
-echo -e "${GREEN}✓ Frontend built successfully${NC}"
-echo
 
-# Build Go binary
-echo "🔨 Building Go binary..."
-go build -o goscouter .
-echo -e "${GREEN}✓ Binary built successfully${NC}"
-echo
-
-# Determine install location
-INSTALL_DIR="/usr/local/bin"
-if [ ! -w "$INSTALL_DIR" ]; then
-    echo -e "${YELLOW}⚠ Need sudo access to install to $INSTALL_DIR${NC}"
-    USE_SUDO="sudo"
-else
-    USE_SUDO=""
-fi
+# Build backend
+echo -e "${YELLOW}→${NC} Building backend..."
+go build -o goscouter . >/dev/null 2>&1
 
 # Install binary
-echo "📥 Installing goscouter to $INSTALL_DIR..."
-$USE_SUDO cp goscouter "$INSTALL_DIR/goscouter"
-$USE_SUDO chmod +x "$INSTALL_DIR/goscouter"
-echo -e "${GREEN}✓ Installed successfully${NC}"
-echo
+echo -e "${YELLOW}→${NC} Installing goscouter to /usr/local/bin..."
+if [ -w "/usr/local/bin" ]; then
+    cp goscouter /usr/local/bin/goscouter
+else
+    sudo cp goscouter /usr/local/bin/goscouter
+fi
 
-# Create data directory for frontend files
-DATA_DIR="$HOME/.goscouter"
-echo "📁 Setting up data directory at $DATA_DIR..."
-mkdir -p "$DATA_DIR"
-cp -r frontend/out "$DATA_DIR/"
-echo -e "${GREEN}✓ Data directory created${NC}"
-echo
+# Install frontend assets
+echo -e "${YELLOW}→${NC} Installing frontend assets..."
+mkdir -p "${HOME}/.goscouter"
+cp -r frontend/out "${HOME}/.goscouter/"
 
-# Update the binary to look for frontend in the data directory
-echo "🔧 Configuring paths..."
-echo "Frontend files: $DATA_DIR/out"
-echo
+# Make executable
+if [ -w "/usr/local/bin/goscouter" ]; then
+    chmod +x /usr/local/bin/goscouter
+else
+    sudo chmod +x /usr/local/bin/goscouter
+fi
 
-echo -e "${GREEN}✨ Installation complete!${NC}"
-echo
-echo "You can now run goscouter from anywhere:"
-echo "  $ goscouter run"
-echo
-echo "The web interface will be available at:"
-echo "  http://localhost:8080"
-echo
+# Clean up build directory
+cd "$HOME"
+rm -rf "$INSTALL_DIR"
+
+# Verify installation
+if command -v goscouter >/dev/null 2>&1; then
+    VERSION=$(goscouter version 2>&1 | head -1 | grep -o 'v[0-9.]*' || echo "dev")
+    echo ""
+    echo -e "${GREEN}╔═══════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${GREEN}║            ✓ GoScouter installed successfully!            ║${NC}"
+    echo -e "${GREEN}╚═══════════════════════════════════════════════════════════╝${NC}"
+    echo ""
+    echo -e "${BLUE}Version:${NC} $VERSION"
+    echo -e "${BLUE}Installed to:${NC} /usr/local/bin/goscouter"
+    echo ""
+    echo -e "${YELLOW}Get started:${NC}"
+    echo -e "  ${GREEN}goscouter run${NC}       # Start the web service"
+    echo -e "  ${GREEN}goscouter version${NC}   # Check version"
+    echo -e "  ${GREEN}goscouter help${NC}      # Show help"
+    echo ""
+    echo -e "${BLUE}Web Interface:${NC} http://localhost:8080"
+    echo ""
+else
+    echo -e "${RED}✗ Installation failed. Please check errors above.${NC}"
+    exit 1
+fi
