@@ -58,8 +58,11 @@ func startDaemon() error {
 		return fmt.Errorf("failed to start daemon: %w", err)
 	}
 
+	// Save PID before releasing
+	pid := cmd.Process.Pid
+
 	// Write PID file
-	if err := writePID(cmd.Process.Pid); err != nil {
+	if err := writePID(pid); err != nil {
 		cmd.Process.Kill()
 		return fmt.Errorf("failed to write PID file: %w", err)
 	}
@@ -67,7 +70,7 @@ func startDaemon() error {
 	// Detach from parent
 	cmd.Process.Release()
 
-	fmt.Printf("✓ GoScouter started in daemon mode (PID: %d)\n", cmd.Process.Pid)
+	fmt.Printf("✓ GoScouter started in daemon mode (PID: %d)\n", pid)
 	fmt.Printf("  Logs: %s\n", logPath)
 	fmt.Printf("  Web Interface: http://localhost:8080\n")
 
