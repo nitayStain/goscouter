@@ -22,7 +22,7 @@ npm --version
 Install GoScouter with a single command:
 
 ```bash
-curl -sSf https://raw.githubusercontent.com/nitayStain/goscouter/main/scripts/install.sh | bash
+curl -sSf https://raw.githubusercontent.com/nitayStain/goscouter/main/scripts/install.sh | sh
 ```
 
 This will:

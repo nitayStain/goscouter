@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 # GoScouter Installer
-# Usage: curl -sSf https://raw.githubusercontent.com/nitayStain/goscouter/main/scripts/install.sh | bash
+# Usage: curl -sSf https://raw.githubusercontent.com/nitayStain/goscouter/main/scripts/install.sh | sh
 
 set -e
 
@@ -18,10 +18,10 @@ clear
 OS="$(uname -s)"
 ARCH="$(uname -m)"
 
-printf "${BLUE}╔═══════════════════════════════════════════════════════════╗${NC}\n\n"
-printf "${BLUE}║                   GoScouter Installer                     ║${NC}\n\n"
-printf "${BLUE}║          Subdomain Discovery Tool Installation            ║${NC}\n\n"
-printf "${BLUE}╚═══════════════════════════════════════════════════════════╝${NC}\n\n"
+printf "${BLUE}╔═══════════════════════════════════════════════════════════╗${NC}\n"
+printf "${BLUE}║                   GoScouter Installer                     ║${NC}\n"
+printf "${BLUE}║          Subdomain Discovery Tool Installation            ║${NC}\n"
+printf "${BLUE}╚═══════════════════════════════════════════════════════════╝${NC}\n"
 printf "\n"
 
 # Check prerequisites
@@ -40,13 +40,17 @@ if command -v goscouter >/dev/null 2>&1; then
     CURRENT_VERSION=$(goscouter version 2>&1 | head -1 | grep -o 'v[0-9.]*' || echo "unknown")
     printf "${YELLOW}⚠${NC}  GoScouter is already installed (${CURRENT_VERSION})\n"
     printf "\n"
-    read -p "Do you want to reinstall? [y/N]: " -n 1 -r
-    printf "\n"
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo "Installation cancelled."
-        exit 0
-    fi
-    printf "\n"
+    printf "Do you want to reinstall? [y/N]: "
+    read REPLY
+    case "$REPLY" in
+        [Yy]|[Yy][Ee][Ss])
+            printf "\n"
+            ;;
+        *)
+            printf "Installation cancelled.\n"
+            exit 0
+            ;;
+    esac
 fi
 
 # Set install directory
