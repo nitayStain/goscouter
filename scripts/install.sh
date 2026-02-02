@@ -11,39 +11,42 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Clear screen for clean display
+clear
+
 # Detect OS and Architecture
 OS="$(uname -s)"
 ARCH="$(uname -m)"
 
-echo -e "${BLUE}╔═══════════════════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║                   GoScouter Installer                     ║${NC}"
-echo -e "${BLUE}║          Subdomain Discovery Tool Installation            ║${NC}"
-echo -e "${BLUE}╚═══════════════════════════════════════════════════════════╝${NC}"
-echo ""
+printf "${BLUE}╔═══════════════════════════════════════════════════════════╗${NC}\n\n"
+printf "${BLUE}║                   GoScouter Installer                     ║${NC}\n\n"
+printf "${BLUE}║          Subdomain Discovery Tool Installation            ║${NC}\n\n"
+printf "${BLUE}╚═══════════════════════════════════════════════════════════╝${NC}\n\n"
+printf "\n"
 
 # Check prerequisites
-echo -e "${YELLOW}→${NC} Checking prerequisites..."
+printf "${YELLOW}→${NC} Checking prerequisites...\n"
 
-command -v git >/dev/null 2>&1 || { echo -e "${RED}✗ git is required but not installed.${NC}" >&2; exit 1; }
-command -v go >/dev/null 2>&1 || { echo -e "${RED}✗ Go 1.23+ is required but not installed. Get it at https://golang.org/dl/${NC}" >&2; exit 1; }
-command -v node >/dev/null 2>&1 || { echo -e "${RED}✗ Node.js 18+ is required but not installed. Get it at https://nodejs.org${NC}" >&2; exit 1; }
-command -v npm >/dev/null 2>&1 || { echo -e "${RED}✗ npm is required but not installed.${NC}" >&2; exit 1; }
+command -v git >/dev/null 2>&1 || { printf "${RED}✗ git is required but not installed.${NC}\n" >&2; exit 1; }
+command -v go >/dev/null 2>&1 || { printf "${RED}✗ Go 1.23+ is required but not installed. Get it at https://golang.org/dl/${NC}\n" >&2; exit 1; }
+command -v node >/dev/null 2>&1 || { printf "${RED}✗ Node.js 18+ is required but not installed. Get it at https://nodejs.org${NC}\n" >&2; exit 1; }
+command -v npm >/dev/null 2>&1 || { printf "${RED}✗ npm is required but not installed.${NC}\n" >&2; exit 1; }
 
-echo -e "${GREEN}✓${NC} All prerequisites found"
-echo ""
+printf "${GREEN}✓${NC} All prerequisites found\n"
+printf "\n"
 
 # Check if goscouter is already installed
 if command -v goscouter >/dev/null 2>&1; then
     CURRENT_VERSION=$(goscouter version 2>&1 | head -1 | grep -o 'v[0-9.]*' || echo "unknown")
-    echo -e "${YELLOW}⚠${NC}  GoScouter is already installed (${CURRENT_VERSION})"
-    echo ""
+    printf "${YELLOW}⚠${NC}  GoScouter is already installed (${CURRENT_VERSION})\n"
+    printf "\n"
     read -p "Do you want to reinstall? [y/N]: " -n 1 -r
-    echo ""
+    printf "\n"
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         echo "Installation cancelled."
         exit 0
     fi
-    echo ""
+    printf "\n"
 fi
 
 # Set install directory
@@ -52,29 +55,29 @@ BRANCH="${GOSCOUTER_BRANCH:-main}"
 
 # Clean up old installation if exists
 if [ -d "$INSTALL_DIR" ]; then
-    echo -e "${YELLOW}→${NC} Removing old build directory..."
+    printf "${YELLOW}→${NC} Removing old build directory...\n"
     rm -rf "$INSTALL_DIR"
 fi
 
 # Clone repository
-echo -e "${YELLOW}→${NC} Downloading GoScouter from GitHub..."
+printf "${YELLOW}→${NC} Downloading GoScouter from GitHub...\n"
 git clone --depth 1 --branch "$BRANCH" https://github.com/nitayStain/goscouter.git "$INSTALL_DIR" >/dev/null 2>&1
 
 cd "$INSTALL_DIR"
 
 # Build frontend
-echo -e "${YELLOW}→${NC} Building frontend (this may take a minute)..."
+printf "${YELLOW}→${NC} Building frontend (this may take a minute)...\n"
 cd frontend
 npm install --silent >/dev/null 2>&1
 npm run build >/dev/null 2>&1
 cd ..
 
 # Build backend
-echo -e "${YELLOW}→${NC} Building backend..."
+printf "${YELLOW}→${NC} Building backend...\n"
 go build -o goscouter . >/dev/null 2>&1
 
 # Install binary
-echo -e "${YELLOW}→${NC} Installing goscouter to /usr/local/bin..."
+printf "${YELLOW}→${NC} Installing goscouter to /usr/local/bin...\n"
 if [ -w "/usr/local/bin" ]; then
     cp goscouter /usr/local/bin/goscouter
 else
@@ -82,7 +85,7 @@ else
 fi
 
 # Install frontend assets
-echo -e "${YELLOW}→${NC} Installing frontend assets..."
+printf "${YELLOW}→${NC} Installing frontend assets...\n"
 mkdir -p "${HOME}/.goscouter"
 cp -r frontend/out "${HOME}/.goscouter/"
 
@@ -100,22 +103,22 @@ rm -rf "$INSTALL_DIR"
 # Verify installation
 if command -v goscouter >/dev/null 2>&1; then
     VERSION=$(goscouter version 2>&1 | head -1 | grep -o 'v[0-9.]*' || echo "dev")
-    echo ""
-    echo -e "${GREEN}╔═══════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${GREEN}║            ✓ GoScouter installed successfully!            ║${NC}"
-    echo -e "${GREEN}╚═══════════════════════════════════════════════════════════╝${NC}"
-    echo ""
-    echo -e "${BLUE}Version:${NC} $VERSION"
-    echo -e "${BLUE}Installed to:${NC} /usr/local/bin/goscouter"
-    echo ""
-    echo -e "${YELLOW}Get started:${NC}"
-    echo -e "  ${GREEN}goscouter run${NC}       # Start the web service"
-    echo -e "  ${GREEN}goscouter version${NC}   # Check version"
-    echo -e "  ${GREEN}goscouter help${NC}      # Show help"
-    echo ""
-    echo -e "${BLUE}Web Interface:${NC} http://localhost:8080"
-    echo ""
+    printf "\n"
+    printf "${GREEN}╔═══════════════════════════════════════════════════════════╗${NC}\n"
+    printf "${GREEN}║            ✓ GoScouter installed successfully!            ║${NC}\n"
+    printf "${GREEN}╚═══════════════════════════════════════════════════════════╝${NC}\n"
+    printf "\n"
+    printf "${BLUE}Version:${NC} $VERSION\n"
+    printf "${BLUE}Installed to:${NC} /usr/local/bin/goscouter\n"
+    printf "\n"
+    printf "${YELLOW}Get started:${NC}\n"
+    printf "  ${GREEN}goscouter run${NC}       # Start the web service\n"
+    printf "  ${GREEN}goscouter version${NC}   # Check version\n"
+    printf "  ${GREEN}goscouter help${NC}      # Show help\n"
+    printf "\n"
+    printf "${BLUE}Web Interface:${NC} http://localhost:8080\n"
+    printf "\n"
 else
-    echo -e "${RED}✗ Installation failed. Please check errors above.${NC}"
+    printf "${RED}✗ Installation failed. Please check errors above.${NC}\n"
     exit 1
 fi
