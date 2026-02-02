@@ -7,7 +7,7 @@ A subdomain discovery tool that uses Certificate Transparency logs to find subdo
 ### One-Line Install ⚡
 
 ```bash
-curl -sSf https://raw.githubusercontent.com/nitayStain/goscouter/main/remote-install.sh | sh
+curl -sSf https://raw.githubusercontent.com/nitayStain/goscouter/main/scripts/remote-install.sh | sh
 ```
 
 This will automatically download, build, and install GoScouter system-wide.
@@ -20,7 +20,7 @@ git clone https://github.com/nitayStain/goscouter.git
 cd goscouter
 
 # Run the installer
-./install.sh
+./scripts/install.sh
 ```
 
 After installation:

@@ -1,6 +1,6 @@
 #!/bin/bash
 # GoScouter Remote Installer
-# Usage: curl -sSf https://raw.githubusercontent.com/nitayStain/goscouter/main/remote-install.sh | sh
+# Usage: curl -sSf https://raw.githubusercontent.com/nitayStain/goscouter/main/scripts/remote-install.sh | sh
 
 set -e
 

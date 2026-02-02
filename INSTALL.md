@@ -22,7 +22,7 @@ npm --version
 Install GoScouter with a single command:
 
 ```bash
-curl -sSf https://raw.githubusercontent.com/nitayStain/goscouter/main/remote-install.sh | sh
+curl -sSf https://raw.githubusercontent.com/nitayStain/goscouter/main/scripts/remote-install.sh | sh
 ```
 
 This will:
@@ -47,7 +47,7 @@ git clone https://github.com/nitayStain/goscouter.git
 cd goscouter
 
 # Run the installer
-./install.sh
+./scripts/install.sh
 ```
 
 This will:
@@ -135,7 +135,7 @@ docker compose down
 
 ### Using the uninstall script:
 ```bash
-./uninstall.sh
+./scripts/uninstall.sh
 ```
 
 ### Using Make:
