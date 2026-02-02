@@ -40,17 +40,25 @@ if command -v goscouter >/dev/null 2>&1; then
     CURRENT_VERSION=$(goscouter version 2>&1 | head -1 | grep -o 'v[0-9.]*' || echo "unknown")
     printf "${YELLOW}⚠${NC}  GoScouter is already installed (${CURRENT_VERSION})\n"
     printf "\n"
-    printf "Do you want to reinstall? [y/N]: "
-    read REPLY
-    case "$REPLY" in
-        [Yy]|[Yy][Ee][Ss])
-            printf "\n"
-            ;;
-        *)
-            printf "Installation cancelled.\n"
-            exit 0
-            ;;
-    esac
+
+    # Only prompt if we have a tty (interactive session)
+    if [ -t 0 ]; then
+        printf "Do you want to reinstall? [y/N]: "
+        read REPLY
+        case "$REPLY" in
+            [Yy]|[Yy][Ee][Ss])
+                printf "\n"
+                ;;
+            *)
+                printf "Installation cancelled.\n"
+                exit 0
+                ;;
+        esac
+    else
+        # Non-interactive (piped), proceed with reinstall
+        printf "Proceeding with reinstall...\n"
+        printf "\n"
+    fi
 fi
 
 # Set install directory
