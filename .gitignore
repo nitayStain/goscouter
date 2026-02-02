@@ -1,28 +1,43 @@
-# macOS
-.DS_Store
-
-# Node / Next.js
-node_modules
-.next
-npm-debug.log*
-pnpm-debug.log*
-frontend/.next
-frontend/node_modules
+# Binaries
+goscouter
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
 
 # Go
-/.gopath
-backend/.gopath
-backend/bin
-backend/obj
-backend/server
+*.test
+*.out
+vendor/
 
-# Env / config
-.env
-.env.*
-*.local
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.DS_Store
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
 
 # Logs
 *.log
 
-# Docker artifacts
-db_data
+# Temp
+tmp/
+temp/
+
+# Build artifacts
+dist/
+build/

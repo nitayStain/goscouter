@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net"
 	"net/http"
 	"strings"
@@ -29,6 +30,7 @@ type Finder struct {
 	userAgent      string
 	maxBodySize    int64
 	lookupIPOwners bool
+	debug          bool
 }
 
 type FinderOption func(*Finder)
@@ -87,6 +89,12 @@ func WithMaxBodySize(maxBytes int64) FinderOption {
 func WithIPOwnerLookup(enabled bool) FinderOption {
 	return func(f *Finder) {
 		f.lookupIPOwners = enabled
+	}
+}
+
+func WithDebug(enabled bool) FinderOption {
+	return func(f *Finder) {
+		f.debug = enabled
 	}
 }
 
@@ -214,16 +222,40 @@ func (f *Finder) hasWildcardDNS(ctx context.Context, domain string) (bool, error
 		return false, err
 	}
 	randomSub := fmt.Sprintf("%s.%s", sub, domain)
+
+	if f.debug {
+		log.Printf("[DEBUG] Checking wildcard DNS: %s", randomSub)
+	}
+
 	_, err = f.resolver.LookupHost(ctx, randomSub)
-	return err == nil, nil
+	hasWildcard := err == nil
+
+	if f.debug {
+		log.Printf("[DEBUG] Wildcard DNS result for %s: %v", domain, hasWildcard)
+	}
+
+	return hasWildcard, nil
 }
 
 func (f *Finder) resolveIPs(ctx context.Context, domain string) ([]string, error) {
+	if f.debug {
+		log.Printf("[DEBUG] DNS lookup: %s", domain)
+	}
+
 	ips, err := f.resolver.LookupHost(ctx, domain)
 	if err != nil {
+		if f.debug {
+			log.Printf("[DEBUG] DNS lookup failed for %s: %v", domain, err)
+		}
 		return nil, err
 	}
-	return uniqueStrings(ips), nil
+
+	uniqueIPs := uniqueStrings(ips)
+	if f.debug {
+		log.Printf("[DEBUG] DNS resolved %s -> %v", domain, uniqueIPs)
+	}
+
+	return uniqueIPs, nil
 }
 
 func (f *Finder) fetchJSON(ctx context.Context, url string, out any) error {
